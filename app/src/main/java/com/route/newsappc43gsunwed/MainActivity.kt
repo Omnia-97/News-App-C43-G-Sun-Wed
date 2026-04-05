@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,7 +26,7 @@ import com.route.newsappc43gsunwed.destinations.CategoriesDestination
 import com.route.newsappc43gsunwed.destinations.NewsDestination
 import com.route.newsappc43gsunwed.destinations.SplashDestination
 import com.route.newsappc43gsunwed.screens.CategoriesScreen
-import com.route.newsappc43gsunwed.screens.NewsScreen
+import com.route.newsappc43gsunwed.screens.news.NewsScreen
 import com.route.newsappc43gsunwed.screens.SplashScreenContent
 import com.route.newsappc43gsunwed.ui.theme.NewsAppC43GSunWedTheme
 import com.route.newsappc43gsunwed.utils.NewsDrawer
@@ -50,7 +49,7 @@ class MainActivity : ComponentActivity() {
 fun NewsApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val currentBackStackEntryState by navController.currentBackStackEntryAsState()
-    val drawerState = rememberDrawerState(DrawerValue.Open)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     ModalNavigationDrawer(
         drawerContent = {

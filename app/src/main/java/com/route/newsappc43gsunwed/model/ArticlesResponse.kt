@@ -9,7 +9,8 @@ data class ArticlesResponse(
 
     @field:SerializedName("articles")
     val articles: List<ArticlesItem>? = null,
-
+    @field:SerializedName("message")
+    val message: String? = null,
     @field:SerializedName("status")
     val status: String? = null
 )

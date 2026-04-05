@@ -1,11 +1,9 @@
-package com.route.newsappc43gsunwed.screens
+package com.route.newsappc43gsunwed.screens.news
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +18,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
@@ -27,22 +26,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.route.newsappc43gsunwed.R
@@ -52,6 +53,7 @@ import com.route.newsappc43gsunwed.model.ArticlesResponse
 import com.route.newsappc43gsunwed.model.SourcesItem
 import com.route.newsappc43gsunwed.model.SourcesResponse
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import retrofit2.Call
 import retrofit2.Callback
@@ -63,29 +65,38 @@ fun NewsScreen(
     categoryApiId: String,
     navController: NavHostController
 ) {
+    val viewModel: NewsViewModel = viewModel()
     val colorScheme = MaterialTheme.colorScheme
-    val context = LocalContext.current
-    val sourcesList = remember { mutableStateListOf<SourcesItem>() }
-    val articlesList = remember { mutableStateListOf<ArticlesItem>() }
+    val sourcesList = viewModel.sourcesLiveData.observeAsState()
+    val articlesList = viewModel.articlesLiveData.observeAsState()
+    val isLoading = viewModel.isLoading.observeAsState()
+    val errorState = viewModel.errorLiveData.observeAsState()
     LaunchedEffect(Unit) {
-        getSourcesByCategory(categoryApiId) {
-            sourcesList.addAll(it)
+        viewModel.getSourcesByCategory(categoryApiId)
+    }
+    if (isLoading.value == true) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = colorScheme.onBackground)
         }
     }
+    if (errorState.value?.isNotEmpty() == true) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = errorState.value ?: "", color = colorScheme.onBackground , )
+        }
+    }
+
     Column(modifier = modifier.fillMaxSize()) {
         NewsSourcesLazyRow(
             modifier = Modifier,
-            sourcesList = sourcesList.toPersistentList()
+            sourcesList = sourcesList.value?.toPersistentList() ?: persistentListOf()
         ) { index ->
-            getArticlesBySourceId(sourcesList[index].id ?: "") {
-                Log.e("TAG321", "NewsScreen: Source id = ${sourcesList[index].id}")
-                Log.e("TAG321", "NewsScreen: News List => $it")
-                articlesList.clear()
-                articlesList.addAll(it)
-            }
+            viewModel.getArticlesBySourceId(sourcesList.value?.get(index)?.id ?: "")
         }
         Spacer(modifier = Modifier.padding(2.dp))
-        NewsListLazyColumn(modifier = Modifier, articlesList = articlesList.toPersistentList())
+        NewsListLazyColumn(
+            modifier = Modifier,
+            articlesList = articlesList.value?.toPersistentList() ?: persistentListOf()
+        )
     }
 }
 
@@ -98,47 +109,6 @@ fun NewsListLazyColumn(modifier: Modifier, articlesList: PersistentList<Articles
     }
 }
 
-fun getArticlesBySourceId(sourceId: String, onArticlesResponse: (List<ArticlesItem>) -> Unit) {
-    ApiManager.getNewsService().getNewsBySourceId(sourceId).enqueue(
-        object : Callback<ArticlesResponse> {
-            override fun onResponse(
-                call: Call<ArticlesResponse>,
-                response: Response<ArticlesResponse>
-            ) {
-                val articles = response.body()?.articles ?: listOf()
-                onArticlesResponse(articles)
-            }
-
-            override fun onFailure(
-                call: Call<ArticlesResponse?>?,
-                error: Throwable?
-            ) {
-                Log.e("TAG", "onFailure: ${error?.message}")
-            }
-
-        }
-    )
-}
-
-fun getSourcesByCategory(categoryApiId: String, onSourcesResponse: (List<SourcesItem>) -> Unit) {
-
-    ApiManager.getNewsService().getSources(categoryApiId = categoryApiId)
-        .enqueue(object : Callback<SourcesResponse> {
-            override fun onResponse(
-                call: Call<SourcesResponse>,
-                response: Response<SourcesResponse>
-            ) {
-                val sources = response.body()?.sources ?: listOf()
-                onSourcesResponse(sources)
-                Log.e("TAG", "onResponse: ${response.body()}")
-            }
-
-            override fun onFailure(p0: Call<SourcesResponse?>?, p1: Throwable?) {
-                Log.e("Error", p1?.message ?: "")
-            }
-        })
-    //.execute()  X // Execute ->  Main Thread or UI Thread
-}
 
 @Composable
 fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
