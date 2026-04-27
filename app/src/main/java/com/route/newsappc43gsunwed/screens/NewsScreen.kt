@@ -56,6 +56,7 @@ import com.route.newsappc43gsunwed.model.SourcesResponse
 import com.route.newsappc43gsunwed.utils.formatPublishedDate
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.delay
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -64,31 +65,53 @@ import retrofit2.Response
 fun NewsScreen(
     modifier: Modifier = Modifier,
     categoryApiId: String,
-    navController: NavHostController
+    navController: NavHostController,
+    searchQuery: String = ""
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
     val sourcesList = remember { mutableStateListOf<SourcesItem>() }
     val articlesList = remember { mutableStateListOf<ArticlesItem>() }
+    val searchResults = remember { mutableStateListOf<ArticlesItem>() }
+    val isSearching = searchQuery.isNotBlank()
     LaunchedEffect(Unit) {
         getSourcesByCategory(categoryApiId) {
             sourcesList.addAll(it)
         }
     }
-    Column(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp)) {
-        NewsSourcesLazyRow(
-            modifier = Modifier,
-            sourcesList = sourcesList.toPersistentList()
-        ) { index ->
-            getArticlesBySourceId(sourcesList[index].id ?: "") {
-                Log.e("TAG321", "NewsScreen: Source id = ${sourcesList[index].id}")
-                Log.e("TAG321", "NewsScreen: News List => $it")
-                articlesList.clear()
-                articlesList.addAll(it)
+    LaunchedEffect(searchQuery) {
+        if (searchQuery.isNotBlank()) {
+            delay(500)
+            searchArticles(searchQuery) {
+                searchResults.clear()
+                searchResults.addAll(it)
             }
+        } else {
+            searchResults.clear()
         }
-        Spacer(modifier = Modifier.padding(2.dp))
-        NewsListLazyColumn(modifier = Modifier, articlesList = articlesList.toPersistentList())
+    }
+    Column(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+        if (!isSearching) {
+            NewsSourcesLazyRow(
+                modifier = Modifier,
+                sourcesList = sourcesList.toPersistentList()
+            ) { index ->
+                getArticlesBySourceId(sourcesList[index].id ?: "") {
+                    Log.e("TAG321", "NewsScreen: Source id = ${sourcesList[index].id}")
+                    Log.e("TAG321", "NewsScreen: News List => $it")
+                    articlesList.clear()
+                    articlesList.addAll(it)
+                }
+            }
+            Spacer(modifier = Modifier.padding(2.dp))
+        }
+        NewsListLazyColumn(
+            modifier = Modifier,
+            articlesList = if (isSearching)
+                searchResults.toPersistentList()
+            else
+                articlesList.toPersistentList()
+        )
     }
 }
 
@@ -141,6 +164,23 @@ fun getSourcesByCategory(categoryApiId: String, onSourcesResponse: (List<Sources
             }
         })
     //.execute()  X // Execute ->  Main Thread or UI Thread
+}
+fun searchArticles(query: String, onArticlesResponse: (List<ArticlesItem>) -> Unit) {
+    ApiManager.getNewsService().searchArticles(query).enqueue(
+        object : Callback<ArticlesResponse> {
+            override fun onResponse(
+                call: Call<ArticlesResponse>,
+                response: Response<ArticlesResponse>
+            ) {
+                val articles = response.body()?.articles ?: listOf()
+                onArticlesResponse(articles)
+            }
+
+            override fun onFailure(call: Call<ArticlesResponse?>?, error: Throwable?) {
+                Log.e("TAG", "searchArticles onFailure: ${error?.message}")
+            }
+        }
+    )
 }
 
 @Composable

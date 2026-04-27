@@ -16,5 +16,10 @@ interface NewsService {
     fun getNewsBySourceId(
         @Query("sources") sourceId: String,
     ): Call<ArticlesResponse>
+
+    @GET("everything")
+    fun searchArticles(
+        @Query("q") query: String,
+    ): Call<ArticlesResponse>
 }
 // Saturday -> Facebook Timeline Jetpack compose

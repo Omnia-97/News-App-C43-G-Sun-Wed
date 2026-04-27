@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
@@ -52,6 +54,7 @@ fun NewsApp(modifier: Modifier = Modifier) {
     val currentBackStackEntryState by navController.currentBackStackEntryAsState()
     val drawerState = rememberDrawerState(DrawerValue.Open)
     val scope = rememberCoroutineScope()
+    var searchQuery by remember { mutableStateOf("") }
     ModalNavigationDrawer(
         drawerContent = {
             NewsDrawer(
@@ -72,12 +75,14 @@ fun NewsApp(modifier: Modifier = Modifier) {
                 if (currentBackStackEntryState?.destination?.route != SplashDestination::class.qualifiedName)
                     NewsTopAppBar(
                         modifier = Modifier.fillMaxWidth(),
-                        stringResource(R.string.home)
-                    ) {
-                        scope.launch {
-                            drawerState.open() // Kotlin Coroutines
+                        stringResource(R.string.home),
+                        onSearchQueryChange = { searchQuery = it },
+                        onNavigationIconClick = {
+                            scope.launch {
+                                drawerState.open() // Kotlin Coroutines
+                            }
                         }
-                    }
+                    )
             }) {
             NavHost(
                 navController = navController,
@@ -101,6 +106,7 @@ fun NewsApp(modifier: Modifier = Modifier) {
                     NewsScreen(
                         categoryApiId = newsDestination.categoryApiId,
                         navController = navController,
+                        searchQuery = searchQuery
                     )
                 }
             }
