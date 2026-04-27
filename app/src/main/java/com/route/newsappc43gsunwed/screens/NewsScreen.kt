@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -72,7 +74,7 @@ fun NewsScreen(
             sourcesList.addAll(it)
         }
     }
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp)) {
         NewsSourcesLazyRow(
             modifier = Modifier,
             sourcesList = sourcesList.toPersistentList()
@@ -143,6 +145,8 @@ fun getSourcesByCategory(categoryApiId: String, onSourcesResponse: (List<Sources
 @Composable
 fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
     val colorScheme = MaterialTheme.colorScheme
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = Color.Transparent,
@@ -150,6 +154,7 @@ fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
         ),
         shape = RoundedCornerShape(16.dp),
         modifier = modifier.border(1.dp, colorScheme.onBackground, RoundedCornerShape(16.dp))
+            .clickable { showBottomSheet = true }
     ) {
         AsyncImage(
             model = articlesItem.urlToImage ?: "",
@@ -192,6 +197,12 @@ fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
 
                 )
         }
+    }
+    if (showBottomSheet) {
+        ArticleDetailsBottomSheet(
+            articlesItem = articlesItem,
+            onDismiss = { showBottomSheet = false }
+        )
     }
 }
 
