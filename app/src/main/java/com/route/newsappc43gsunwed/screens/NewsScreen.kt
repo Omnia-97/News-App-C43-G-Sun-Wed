@@ -53,6 +53,7 @@ import com.route.newsappc43gsunwed.model.ArticlesItem
 import com.route.newsappc43gsunwed.model.ArticlesResponse
 import com.route.newsappc43gsunwed.model.SourcesItem
 import com.route.newsappc43gsunwed.model.SourcesResponse
+import com.route.newsappc43gsunwed.utils.formatPublishedDate
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.toPersistentList
 import retrofit2.Call
@@ -190,7 +191,7 @@ fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
 
                 )
             Text(
-                text = articlesItem.publishedAt ?: "",
+                text = articlesItem.publishedAt?.formatPublishedDate() ?: "",
                 maxLines = 1,
                 color = colorScheme.onBackground,
                 modifier = Modifier,

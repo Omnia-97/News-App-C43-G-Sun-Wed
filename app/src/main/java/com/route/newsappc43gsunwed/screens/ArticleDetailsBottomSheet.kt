@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.route.newsappc43gsunwed.R
 import com.route.newsappc43gsunwed.model.ArticlesItem
+import com.route.newsappc43gsunwed.utils.formatPublishedDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -113,7 +114,7 @@ fun ArticleDetailsBottomSheet(
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = articlesItem.publishedAt ?: "",
+                    text = articlesItem.publishedAt?.formatPublishedDate() ?: "",
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White.copy(alpha = 0.5f)
                 )
