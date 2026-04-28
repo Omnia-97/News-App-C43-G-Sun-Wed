@@ -21,4 +21,6 @@
     <string name="language">Language</string>
     <string name="view_full_article">View Full Article</string>
     <string name="search">Search</string>
+    <string name="by">By : %1$s</string>
+    <string name="unknown">Unknown</string>
 </resources>

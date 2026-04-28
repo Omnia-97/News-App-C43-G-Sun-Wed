@@ -29,9 +29,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.route.newsappc43gsunwed.R
 import com.route.newsappc43gsunwed.model.ArticlesItem
@@ -108,7 +110,7 @@ fun ArticleDetailsBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "By ${articlesItem.author ?: "Unknown"}",
+                    text = stringResource(R.string.by, articlesItem.author ?: stringResource(R.string.unknown)),
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.White.copy(alpha = 0.5f),
                     modifier = Modifier.weight(1f)
@@ -136,9 +138,8 @@ fun ArticleDetailsBottomSheet(
                     articlesItem.url?.let { url -> uriHandler.openUri(url) }
                 },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(25.dp),
+                    .fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = Color.Black
@@ -146,7 +147,12 @@ fun ArticleDetailsBottomSheet(
             ) {
                 Text(
                     text = stringResource(R.string.view_full_article),
-                    fontWeight = FontWeight.Bold
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    style = TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 16.sp
+                    ),
                 )
             }
         }
