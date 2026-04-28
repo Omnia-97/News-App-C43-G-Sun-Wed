@@ -1,9 +1,6 @@
 package com.route.newsappc43gsunwed.screens
 
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,10 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -90,7 +87,11 @@ fun NewsScreen(
             searchResults.clear()
         }
     }
-    Column(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
+    ) {
         if (!isSearching) {
             NewsSourcesLazyRow(
                 modifier = Modifier,
@@ -165,6 +166,7 @@ fun getSourcesByCategory(categoryApiId: String, onSourcesResponse: (List<Sources
         })
     //.execute()  X // Execute ->  Main Thread or UI Thread
 }
+
 fun searchArticles(query: String, onArticlesResponse: (List<ArticlesItem>) -> Unit) {
     ApiManager.getNewsService().searchArticles(query).enqueue(
         object : Callback<ArticlesResponse> {
@@ -194,7 +196,8 @@ fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
             contentColor = colorScheme.onBackground
         ),
         shape = RoundedCornerShape(16.dp),
-        modifier = modifier.border(1.dp, colorScheme.onBackground, RoundedCornerShape(16.dp))
+        modifier = modifier
+            .border(1.dp, colorScheme.onBackground, RoundedCornerShape(16.dp))
             .clickable { showBottomSheet = true }
     ) {
         AsyncImage(
@@ -202,14 +205,13 @@ fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
             contentDescription = articlesItem.description ?: "",
             placeholder = painterResource(R.drawable.news_logo),
             error = painterResource(R.drawable.business),
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .padding(8.dp)
-                .height(220.dp)
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp)),
-
-
-            )
+                .height(220.dp)
+                .clip(RoundedCornerShape(12.dp))
+        )
         Text(
             text = articlesItem.title ?: "",
             maxLines = 2,
@@ -224,19 +226,23 @@ fun NewsCard(modifier: Modifier = Modifier, articlesItem: ArticlesItem) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = articlesItem.author ?: "",
+                text = "By : ${articlesItem.author}",
                 maxLines = 1,
-                color = colorScheme.onBackground,
-                modifier = Modifier,
-
+                color = Color(0xFFA0A0A0),
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.W500
                 )
+            )
             Text(
                 text = articlesItem.publishedAt?.formatPublishedDate() ?: "",
                 maxLines = 1,
-                color = colorScheme.onBackground,
-                modifier = Modifier,
-
+                color = Color(0xFFA0A0A0),
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.W500
                 )
+            )
         }
     }
     if (showBottomSheet) {

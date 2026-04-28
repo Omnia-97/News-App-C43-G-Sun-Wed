@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -24,12 +25,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -144,18 +144,30 @@ fun OddCategoryCard(
                         shape = CircleShape
                     )
                 ) {
-                    Text(
-                        stringResource(R.string.view_all), modifier = Modifier
-                            .padding(start = 64.dp, top = 10.dp, bottom = 10.dp, end = 16.dp)
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_arrow_reverse),
-                        contentDescription = stringResource(R.string.news_category_filter),
-                        colorFilter = ColorFilter.tint(colorScheme.onBackground),
-                        modifier = Modifier
-                            .background(colorScheme.background, CircleShape)
-                            .align(Alignment.CenterStart)
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .background(colorScheme.background, CircleShape)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_arrow_reverse),
+                                contentDescription = stringResource(R.string.news_category_filter),
+                                colorFilter = ColorFilter.tint(colorScheme.onBackground),
+                                modifier = Modifier.padding(15.dp)
+                            )
+                        }
+                        Text(
+                            stringResource(R.string.view_all), modifier = Modifier
+                                .padding(start = 8.dp, top = 10.dp, bottom = 10.dp, end = 16.dp),
+                            color = colorScheme.onBackground,
+                            style = TextStyle(
+                                fontWeight = FontWeight.W500
+                            )
+                        )
+                    }
                 }
             }
 
@@ -217,23 +229,39 @@ fun EvenCategoryCard(
                     fontSize = 20.sp,
                 )
                 Box(
-                    modifier = Modifier.background(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .background(
                         color = colorScheme.tertiary,
                         shape = CircleShape
                     )
                 ) {
-                    Text(
-                        stringResource(R.string.view_all), modifier = Modifier
-                            .padding(start = 16.dp, top = 10.dp, bottom = 10.dp, end = 64.dp)
-                    )
-                    Image(
-                        painter = painterResource(R.drawable.ic_arrow),
-                        contentDescription = stringResource(R.string.news_category_filter),
-                        colorFilter = ColorFilter.tint(colorScheme.onBackground),
-                        modifier = Modifier
-                            .background(colorScheme.background, CircleShape)
-                            .align(Alignment.CenterEnd)
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            stringResource(R.string.view_all), modifier = Modifier
+                                .padding(start = 16.dp, top = 10.dp, bottom = 10.dp, end = 8.dp),
+                            color = colorScheme.onBackground,
+                            style = TextStyle(
+                                fontWeight = FontWeight.W500
+                            ),
+                            maxLines = 1
+                        )
+                        Box(
+                            modifier = Modifier
+                                .background(colorScheme.background, CircleShape)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_arrow),
+                                contentDescription = stringResource(R.string.news_category_filter),
+                                colorFilter = ColorFilter.tint(colorScheme.onBackground),
+                                modifier = Modifier.padding(15.dp)
+                            )
+                        }
+                    }
+
                 }
             }
         }
